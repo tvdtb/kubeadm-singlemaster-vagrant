@@ -5,10 +5,10 @@ set -x
 vagrant destroy --force
 rm -rf .vagrant kube-*.box
 
-KUBE_VERSION=`curl -sSL https://dl.k8s.io/release/stable.txt | sed 's/v//'`
+export KUBE_VERSION=1.15.3
 
-KUBE_VERSION=${KUBE_VERSION} vagrant up
-
+vagrant up
+vagrant vbguest
 vagrant package --output kube-${KUBE_VERSION}.box
 
 vagrant box add kube-${KUBE_VERSION} kube-${KUBE_VERSION}.box --force

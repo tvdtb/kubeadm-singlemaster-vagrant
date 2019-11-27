@@ -9,21 +9,45 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "shell", inline: <<-SHELL
 
+        # debug
         set -x
 
+        # disable selinux
         setenforce 0
         sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config
 
+        # no swap for k8s
         swapoff -a
         sed -i '/swap/s/^/#/g' /etc/fstab
 
+        # repositories
         cp /vagrant/files/kubernetes.repo /etc/yum.repos.d/kubernetes.repo
         cp /vagrant/files/k8s.conf        /etc/sysctl.d/k8s.conf
 
-        yum install -y \
-            device-mapper-persistent-data \
-            lvm2 \
-            docker \
+
+		# use official and specific docker version playing well with k8s
+		yum install -y yum-utils device-mapper-persistent-data lvm2
+		yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+		export DOCKER_VERSION=18.09.6
+		yum install -y docker-ce-${DOCKER_VERSION} docker-ce-cli-${DOCKER_VERSION} containerd.io                                  
+
+        # create empty daemon config
+        if [ ! -f /etc/docker/daemon.json ]; then
+            mkdir -p /etc/docker
+            echo "{}" >/etc/docker/daemon.json;
+        fi
+
+        # install jq
+        if [ ! -f /usr/local/bin/jq ]; then
+           curl -sS -o /usr/local/bin/jq --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+           chmod +x /usr/local/bin/jq
+        fi
+
+        # install docker-distribution
+        yum install -y docker-distribution
+
+        # install k8s
+		yum install -y \
             kubeadm-#{VERSION} \
             kubectl-#{VERSION} \
             kubelet-#{VERSION} \
@@ -48,9 +72,6 @@ Vagrant.configure("2") do |config|
         systemctl enable kubelet ; systemctl start kubelet
 
         kubeadm config images pull
-
-        dd if=/dev/zero of=/EMPTY bs=1M
-        rm -f /EMPTY
 
         sync
 
