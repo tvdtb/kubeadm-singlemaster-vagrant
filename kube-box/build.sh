@@ -5,13 +5,15 @@ set -x
 vagrant destroy --force
 rm -rf .vagrant kube-*.box
 
-export KUBE_VERSION=1.15.3
+export K8S_VERSION=1.20.4
+export DOCKER_VERSION=20.10.3
 
 vagrant up
-vagrant vbguest
-vagrant package --output kube-${KUBE_VERSION}.box
+# already installed vagrant vbguest
 
-vagrant box add kube-${KUBE_VERSION} kube-${KUBE_VERSION}.box --force
+vagrant package --output kube-${K8S_VERSION}.box
+
+vagrant box add kube-${K8S_VERSION} kube-${K8S_VERSION}.box --force
 
 vagrant destroy --force
 rm -rf .vagrant kube-*.box

@@ -2,6 +2,11 @@
 
 Kubernetes Cluster: kubeadm mgmt plane + 1 master ctrl plane + 2.. worker data plane
 
+Tested with
+- VirtualBox 6.1.12
+- Vagrant 2.2.9
+- vagrant-vbguest 0.21 (won't work using 0.26-0.29)
+
 ## Vagrant Spin Up For 1 Master + 3 Workers
 
 ### Step 1: Create Vagrant Box
@@ -31,7 +36,7 @@ kubectl get services
 ```
 
 
-# Cluster structure K8S 1.15.3
+# Cluster structure K8S
 
 ```console
                           |

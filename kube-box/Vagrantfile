@@ -1,17 +1,21 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-VERSION = ENV['KUBE_VERSION']
+K8S_VERSION = ENV['K8S_VERSION']
+DOCKER_VERSION = ENV['DOCKER_VERSION']
 
 Vagrant.configure("2") do |config|
 
-    config.vm.box = "bento/centos-7"
+#    config.vm.box = "bento/centos-7"
+    config.vm.box = "centos/7"
+    config.vm.box_version = "2004.01"
 
     config.vm.provision "shell", inline: <<-SHELL
 
-        # debug
-        set -x
-
+        set -e
+		
+		yum install -y coreutils
+		
         # disable selinux
         setenforce 0
         sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config
@@ -28,8 +32,7 @@ Vagrant.configure("2") do |config|
 		# use official and specific docker version playing well with k8s
 		yum install -y yum-utils device-mapper-persistent-data lvm2
 		yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-		export DOCKER_VERSION=18.09.6
-		yum install -y docker-ce-${DOCKER_VERSION} docker-ce-cli-${DOCKER_VERSION} containerd.io                                  
+		yum install -y docker-ce-#{DOCKER_VERSION} docker-ce-cli-#{DOCKER_VERSION} containerd.io                                  
 
         # create empty daemon config
         if [ ! -f /etc/docker/daemon.json ]; then
@@ -48,9 +51,9 @@ Vagrant.configure("2") do |config|
 
         # install k8s
 		yum install -y \
-            kubeadm-#{VERSION} \
-            kubectl-#{VERSION} \
-            kubelet-#{VERSION} \
+            kubeadm-#{K8S_VERSION} \
+            kubectl-#{K8S_VERSION} \
+            kubelet-#{K8S_VERSION} \
             psmisc \
             haproxy \
             keepalived \

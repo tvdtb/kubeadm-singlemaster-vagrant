@@ -24,7 +24,7 @@ etcd:
   local:
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.15.3
+kubernetesVersion: v1.20.4
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
